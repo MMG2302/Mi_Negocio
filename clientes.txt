@@ -1,5 +1,1 @@
-vvv | Thu 12/04/2025 | https://MMG2302.github.io/Mi_Negocio/vvv/ 
-vv | Thu 01/08/2026 | https://MMG2302.github.io/Mi_Negocio/vv/ 
-juana | Thu 01/08/2026 | https://MMG2302.github.io/Mi_Negocio/juana/ 
-pedro | Thu 01/08/2026 | https://MMG2302.github.io/Mi_Negocio/pedro/ 
 vvv | 01.08.2026 | https://MMG2302.github.io/Mi_Negocio/vvv/ 
