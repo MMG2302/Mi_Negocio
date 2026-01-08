@@ -45,10 +45,14 @@ git push
 set link=https://%usuario%.github.io/%repo%/%carpeta%/
 
 :: Guardar registro
-echo %tienda% | %date% | %link% >> clientes.txt
+echo %tienda% ^| %date% ^| %link% >> clientes.txt
 
-echo ✅ Tienda %tienda% creada.
-echo 🌐 Link: %link%
+echo.
+echo ============================================
+echo ✅ Tienda "%tienda%" creada en carpeta "%carpeta%"
+echo 🌐 Link para compartir: %link%
+echo ============================================
+echo.
 pause
 goto menu
 
@@ -63,7 +67,9 @@ git add -A
 git commit -m "Eliminar tienda: %tienda%"
 git push
 
-echo ❌ Tienda %tienda% eliminada.
+echo.
+echo ❌ Tienda "%tienda%" eliminada.
+echo.
 pause
 goto menu
 
@@ -71,6 +77,8 @@ goto menu
 git add -A
 git commit -m "Sincronizacion completa"
 git push
+echo.
 echo 🔄 Repo sincronizado con carpeta local.
+echo.
 pause
 goto menu
