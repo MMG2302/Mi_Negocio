@@ -44,8 +44,9 @@ git push
 :: Construir link
 set link=https://%usuario%.github.io/%repo%/%carpeta%/
 
-:: Guardar registro
-echo %tienda% ^| %date% ^| %link% >> clientes.txt
+:: Guardar registro con fecha ISO mm.dd.yyyy
+for /f %%d in ('powershell -Command "Get-Date -Format MM.dd.yyyy"') do set hoy=%%d
+echo %tienda% ^| !hoy! ^| %link% >> clientes.txt
 
 echo.
 echo ============================================
