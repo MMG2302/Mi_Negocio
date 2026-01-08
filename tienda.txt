@@ -286,7 +286,7 @@
         
         <div class="app-header">
             <h1>MI NEGOCIO</h1>
-            <div class="header-subtitle">Sistema Punto de Venta v2.0</div>
+            <div class="header-subtitle">Sistema Punto de Venta</div>
         </div>
 
         <main>
