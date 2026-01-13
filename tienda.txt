@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistema Punto de Venta (POS)</title>
-    <!-- Libreria para leer Codigos de Barras (Version Fija para evitar bugs de recarga) -->
+    <!-- Libreria para leer Codigos de Barras -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8" type="text/javascript"></script>
     <!-- Libreria para generar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -438,11 +438,11 @@
                 <div class="card">
                     <h2>Respaldo de Datos</h2>
                     <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                        Descarga tu inventario en formato <code>.json</code> para respaldo o cambio de equipo.
+                        Descarga tu inventario en formato <code>.txt</code> para respaldo o cambio de equipo.
                     </p>
-                    <button onclick="exportData()" class="btn btn-export">⬇️ DESCARGAR RESPALDO</button>
-                    <button onclick="document.getElementById('file-upload').click()" class="btn btn-import" style="margin-top: 1rem;">⬆️ RESTAURAR RESPALDO</button>
-                    <input type="file" id="file-upload" accept=".json" style="display: none;" onchange="handleFileUpload(this)">
+                    <button onclick="exportData()" class="btn btn-export">⬇️ DESCARGAR RESPALDO (.TXT)</button>
+                    <button onclick="document.getElementById('file-upload').click()" class="btn btn-import" style="margin-top: 1rem;">⬆️ RESTAURAR RESPALDO (.TXT)</button>
+                    <input type="file" id="file-upload" accept=".txt" style="display: none;" onchange="handleFileUpload(this)">
                     
                     <div style="margin-top: 1rem; padding: 10px; background: #fff3cd; color: #856404; border-radius: 8px; font-size: 0.85rem;">
                         ⚠️ <strong>Advertencia:</strong> Al restaurar se reemplazarán los datos actuales.
@@ -527,21 +527,31 @@
         let currentSaleTotal = 0;
         let currentSaleItems = [];
 
-        // --- SISTEMA DE BACKUP ---
+        // --- SISTEMA DE BACKUP (MODIFICADO PARA .TXT) ---
         function exportData() {
             const dataToExport = {
-                version: "2.0",
+                version: "2.1", // Version actualizada para TXT
                 exportDate: new Date().toISOString(),
                 inventory: inventory,
                 salesHistory: salesHistory
             };
+            // Convertir a String JSON para guardarlo en formato de texto plano
             const dataStr = JSON.stringify(dataToExport, null, 2);
-            const blob = new Blob([dataStr], { type: "application/json" });
+            const blob = new Blob([dataStr], { type: "text/plain;charset=utf-8" });
+            
+            // GENERACIÓN DEL NOMBRE DE ARCHIVO SOLICITADO
+            // Formato: MI_NEGOCIO_AAAA-MM-DD_HH-MM.txt
+            const now = new Date();
+            const datePart = now.toISOString().split('T')[0]; // YYYY-MM-DD
+            const timePart = now.toTimeString().split(' ')[0]; // HH:MM:SS (Reemplazaremos los dos puntos por guiones para compatibilidad de archivos)
+            const cleanTime = timePart.replace(/:/g, '-'); 
+            
+            const fileName = `MI_NEGOCIO_${datePart}_${cleanTime}.txt`;
+
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            const dateStr = new Date().toISOString().split('T')[0];
-            a.download = `respaldo_pos_${dateStr}.json`;
+            a.download = fileName;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -554,21 +564,27 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const importedData = JSON.parse(e.target.result);
-                    if (!importedData.inventory || !Array.isArray(importedData.inventory)) throw new Error("Formato inválido");
-                    if(confirm("¿Sobrescribir datos actuales?")) {
+                    const content = e.target.result;
+                    // Intentar parsear el contenido como JSON
+                    const importedData = JSON.parse(content);
+                    
+                    if (!importedData.inventory || !Array.isArray(importedData.inventory)) throw new Error("Formato de archivo inválido o corrupto");
+                    
+                    if(confirm("¿Sobrescribir datos actuales con este respaldo?")) {
                         inventory = importedData.inventory;
                         salesHistory = importedData.salesHistory || [];
                         saveGlobalData();
                         renderInventory();
                         renderReports();
-                        showToast("Datos restaurados");
+                        showToast("Datos restaurados correctamente");
                     }
                 } catch (err) {
-                    showToast("Error: " + err.message, 'error');
+                    console.error(err);
+                    showToast("Error al leer archivo: Asegúrate de que sea un .txt válido.", 'error');
                 }
-                input.value = '';
+                input.value = ''; // Limpiar input
             };
+            // Leemos como texto para asegurar compatibilidad
             reader.readAsText(file);
         }
 
